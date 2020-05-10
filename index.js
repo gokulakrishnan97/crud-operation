@@ -1,66 +1,89 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const app = express();
 
 app.use(express.json())
 
 let portNumber = process.env.PORT || 3000;
 
-// Sample Data
-let movies = [
-    {
-        name: 'Old School',
-        category: 'Comedy'
+// Schema Initialization
+let genreSchema = mongoose.Schema({
+    name: {
+        type: String,
+        required: true
     },
-    {
-        name: 'Trainwreck',
-        category: 'Comedy'
-    },
-    {
-        name: 'Best in Show',
-        category: 'Comedy'
-    },
-    {
-        name: 'The invisble man',
-        category: 'Thriller'
+    category: {
+        type: String,
+        required: true
     }
-];
+})
+
+let Genres = mongoose.model('genre', genreSchema)
+
+// // Sample Data
+// let movies = [
+//     {
+//         name: 'Old School',
+//         category: 'Comedy'
+//     },
+//     {
+//         name: 'Trainwreck',
+//         category: 'Comedy'
+//     },
+//     {
+//         name: 'Best in Show',
+//         category: 'Comedy'
+//     },
+//     {
+//         name: 'The invisble man',
+//         category: 'Thriller'
+//     }
+// ];
 
 // Get all the data
-app.get('/', (req, res)=>{
+app.get('/', async(req, res)=>{
+    let movies = await Genres.find();
     res.send(movies);
 })
 
 // Get the matched data
-app.get('/category/:name', (req, res)=> {
-    let movie = movies.find(m => m.category === req.params.name)
+app.get('/category/:name', async(req, res)=> {
+    let movie = await Genres.find({name: req.params.name}); 
     return res.status(200).send(movie);
 })
 
 // Create data
-app.post('/', (req, res)=>{
-    let movie = req.body;
-    movies.push(movie);
-    res.send(movie);
+app.post('/', async(req, res)=>{
+    let movie = new Genres ({
+        name: req.body.name,
+        category: req.body.category
+    })
+    let savedData = await movie.save();
+    res.send(savedData);
 })
 
 // Update data
-app.put('/', (req, res)=>{
-    let movie = movies.find(m=> m.name === req.body.name);
-    if(!movie){
-        return res.status(400).send("Invalid body");
-    }
-    movie.category = req.body.category
-    res.status(200).send(movie);
+app.put('/', async(req, res)=>{
+    let updatedData = await Genres.update( {name: req.body.name}, {
+        $set: {
+            category: req.body.category
+        }
+    })
+    res.status(200).send(updatedData);
 })
 
 // Delete data
-app.delete('/:name', (req, res)=>{
-    let index = movies.findIndex(m=> m.name === req.params.name);
-    movies.splice(index, 1);
+app.delete('/:name', async(req, res)=>{
+    let deletedData = await Genres.deleteOne({name: req.params.name});
     res.status(200).send("Deleted Successfully");
 })
 
-
+// Server Connection
 app.listen(portNumber, ()=>{
     console.log(`Server Started in ${portNumber}....`);
 })
+
+// Mongodb Connection
+mongoose.connect('mongodb://localhost/genres')
+    .then(console.log("mongodb connected successfully"))
+    .catch((err)=> console.log("mongodb not connected ", err));
