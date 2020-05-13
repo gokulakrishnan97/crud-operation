@@ -1,31 +1,15 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const genre = require('./Routes/genre.js');
+const user = require('./Routes/users.js');
+const auth = require('./Routes/auth.js');
 const app = express();
 
 app.use(express.json())
 app.use('/genres', genre);
+app.use('/users', user);
+app.use('/auth', auth);
 let portNumber = process.env.PORT || 3000;
-
-// Sample Data
-// let movies = [
-//     {
-//         name: 'Old School',
-//         category: 'Comedy'
-//     },
-//     {
-//         name: 'Trainwreck',
-//         category: 'Comedy'
-//     },
-//     {
-//         name: 'Best in Show',
-//         category: 'Comedy'
-//     },
-//     {
-//         name: 'The invisble man',
-//         category: 'Thriller'
-//     }
-// ];
 
 
 // Server Connection
@@ -34,6 +18,6 @@ app.listen(portNumber, ()=>{
 })
 
 // Mongodb Connection
-mongoose.connect('mongodb://localhost/genres')
+mongoose.connect('mongodb://localhost/crud')
     .then(console.log("mongodb connected successfully"))
     .catch((err)=> console.log("mongodb not connected ", err));
