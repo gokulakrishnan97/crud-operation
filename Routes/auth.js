@@ -1,6 +1,7 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
 const Users = require('../Models/user-schema.js');
+const jwt = require('jsonwebtoken');
 const route = express.Router();
 
 // Login
@@ -17,7 +18,8 @@ route.post('/', async(req, res)=> {
     if(!validPassword){
         res.status(400).send('Invalid email or password');
     }
-    res.status(200).send('true');
+    let token = jwt.sign({_id: user._id, email: user.email, isAdmin: user.isAdmin}, 'jwtprivatekey');
+    res.status(200).send(token);
 })
 
 module.exports = route;

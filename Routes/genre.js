@@ -1,9 +1,11 @@
 const express = require('express');
 const Genres = require('../Models/genre-schema.js');
+const auth = require('../Middleware/auth.js');
+const admin = require('../Middleware/admin.js');
 const route = express.Router();
 
 // Get all the data
-route.get('/', async(req, res)=>{
+route.get('/', [auth, admin], async(req, res)=>{
     let movies = await Genres.find();
     res.send(movies);
 })
